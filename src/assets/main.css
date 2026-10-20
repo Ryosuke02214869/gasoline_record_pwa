@@ -1,0 +1,121 @@
+@import './base.css';
+
+#app {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  min-height: 100vh;
+}
+
+/* Figma-inspired global styles */
+body {
+  background-color: var(--color-background);
+}
+
+/* Card styles */
+.figma-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.figma-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Icon badge styles */
+.icon-badge {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 3rem;
+}
+
+.icon-badge.primary {
+  background: var(--vt-c-bg-blue-light);
+  color: var(--vt-c-primary);
+}
+
+.icon-badge.secondary {
+  background: var(--vt-c-bg-green-light);
+  color: var(--vt-c-secondary);
+}
+
+/* Button styles */
+.figma-button {
+  background: var(--vt-c-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
+}
+
+.figma-button:hover {
+  background: var(--vt-c-primary-dark);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
+  transform: translateY(-1px);
+}
+
+.figma-button.secondary {
+  background: var(--vt-c-secondary);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.figma-button.secondary:hover {
+  background: var(--vt-c-secondary-dark);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Text styles */
+a {
+  text-decoration: none;
+  color: var(--vt-c-primary);
+  transition: 0.3s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    color: var(--vt-c-primary-dark);
+  }
+}
+
+/* Empty state styles */
+.figma-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.figma-empty-state .icon {
+  font-size: 4rem;
+  color: var(--vt-c-text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.figma-empty-state h2 {
+  color: var(--vt-c-text-secondary);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.figma-empty-state p {
+  color: var(--vt-c-text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.figma-empty-state a {
+  color: var(--vt-c-secondary);
+  font-weight: 600;
+  text-decoration: underline;
+}

@@ -1,0 +1,104 @@
+/* Figma-inspired color palette */
+:root {
+  /* Base colors */
+  --vt-c-white: #ffffff;
+  --vt-c-white-soft: #f8f8f8;
+  --vt-c-white-mute: #f2f2f2;
+
+  --vt-c-black: #181818;
+  --vt-c-black-soft: #222222;
+  --vt-c-black-mute: #282828;
+
+  /* Figma brand colors */
+  --vt-c-primary: #5B5FED;
+  --vt-c-primary-light: #7579f1;
+  --vt-c-primary-dark: #4145d4;
+
+  --vt-c-secondary: #22C55E;
+  --vt-c-secondary-light: #4ade80;
+  --vt-c-secondary-dark: #16a34a;
+
+  /* Background colors */
+  --vt-c-bg-lavender: #E8E8F5;
+  --vt-c-bg-blue-light: rgba(99, 102, 241, 0.1);
+  --vt-c-bg-green-light: rgba(34, 197, 94, 0.1);
+
+  /* Text colors */
+  --vt-c-text-primary: #2c2c2c;
+  --vt-c-text-secondary: #666666;
+  --vt-c-text-tertiary: #999999;
+
+  /* Border and divider colors */
+  --vt-c-divider-light-1: rgba(60, 60, 60, 0.12);
+  --vt-c-divider-light-2: rgba(60, 60, 60, 0.08);
+  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
+  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--vt-c-bg-lavender);
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
+
+  --color-primary: var(--vt-c-primary);
+  --color-secondary: var(--vt-c-secondary);
+
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--vt-c-text-primary);
+  --color-text: var(--vt-c-text-secondary);
+
+  --section-gap: 160px;
+}
+
+/* ダークモード設定を一時的に無効化 */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-background-soft: var(--vt-c-black-soft);
+    --color-background-mute: var(--vt-c-black-mute);
+
+    --color-border: var(--vt-c-divider-dark-2);
+    --color-border-hover: var(--vt-c-divider-dark-1);
+
+    --color-heading: var(--vt-c-white);
+    --color-text: rgba(235, 235, 235, 0.64);
+  }
+} */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

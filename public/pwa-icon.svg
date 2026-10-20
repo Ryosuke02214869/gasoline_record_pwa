@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#5B5FED"/>
+  <!-- 給油機本体 -->
+  <rect x="136" y="128" width="168" height="264" rx="20" fill="#ffffff"/>
+  <rect x="164" y="160" width="112" height="72" rx="10" fill="#5B5FED"/>
+  <rect x="112" y="380" width="216" height="28" rx="10" fill="#ffffff"/>
+  <!-- ホース・ノズル -->
+  <path d="M304 196 h28 a24 24 0 0 1 24 24 v108 a20 20 0 0 0 40 0 V196 l-28 -36"
+        fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- しずく -->
+  <path d="M220 262 c-22 30 -32 46 -32 62 a32 32 0 0 0 64 0 c0 -16 -10 -32 -32 -62z" fill="#22C55E"/>
+</svg>
