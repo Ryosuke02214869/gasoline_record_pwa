@@ -779,8 +779,8 @@ const handleDelete = async () => {
   display: none;
 }
 
+/* display は .mobile-only で制御する（ここで指定すると PC でも表示されてしまう） */
 .display-mode-tabs {
-  display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   background: white;
