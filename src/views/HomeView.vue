@@ -9,12 +9,19 @@ import Dialog from 'primevue/dialog'
 import Message from 'primevue/message'
 import { useToast } from 'primevue/usetoast'
 import { useInstallPrompt } from '@/composables/useInstallPrompt'
+import { useDesign, type DesignName } from '@/composables/useDesign'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const syncStore = useSyncStore()
 const toast = useToast()
 const { canInstall, showIosGuide, install } = useInstallPrompt()
+const { design, setDesign } = useDesign()
+
+const designOptions: { value: DesignName; label: string; description: string }[] = [
+  { value: 'standard', label: 'スタンダード', description: 'これまでのデザイン' },
+  { value: 'modern', label: 'モダン', description: 'グラデーションの洗練されたデザイン' },
+]
 
 const logoutDialogVisible = ref(false)
 const loggingOut = ref(false)
@@ -140,6 +147,32 @@ const logout = async () => {
           </template>
         </Card>
       </div>
+
+      <!-- デザインの切り替え -->
+      <section class="design-switch" aria-labelledby="design-switch-title">
+        <div class="design-switch-heading">
+          <i class="pi pi-palette" aria-hidden="true"></i>
+          <h3 id="design-switch-title">画面のデザイン</h3>
+        </div>
+        <div class="design-options" role="radiogroup" aria-labelledby="design-switch-title">
+          <button
+            v-for="option in designOptions"
+            :key="option.value"
+            type="button"
+            role="radio"
+            :aria-checked="design === option.value"
+            :class="['design-option', `design-option-${option.value}`, { active: design === option.value }]"
+            @click="setDesign(option.value)"
+          >
+            <span class="design-preview" aria-hidden="true"></span>
+            <span class="design-option-text">
+              <span class="design-option-label">{{ option.label }}</span>
+              <span class="design-option-description">{{ option.description }}</span>
+            </span>
+            <i v-if="design === option.value" class="pi pi-check-circle design-check" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
 
       <!-- ホーム画面への追加案内（未インストール時のみ表示） -->
       <Card v-if="canInstall || showIosGuide" class="install-card">
@@ -279,6 +312,128 @@ const logout = async () => {
   line-height: 1.5;
 }
 
+.design-switch {
+  max-width: 400px;
+  margin: 1.5rem auto 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.design-switch-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.design-switch-heading i {
+  font-size: 1.25rem;
+  color: var(--vt-c-primary);
+}
+
+.design-switch-heading h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--vt-c-text-primary);
+  margin: 0;
+}
+
+.design-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.design-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.625rem;
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 2px solid var(--vt-c-divider-light-1);
+  border-radius: 14px;
+  background: white;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.design-option:hover {
+  border-color: var(--vt-c-primary-light);
+}
+
+.design-option.active {
+  border-color: var(--vt-c-primary);
+  box-shadow: 0 0 0 3px var(--vt-c-bg-blue-light);
+}
+
+.design-option:focus-visible {
+  outline: 3px solid var(--vt-c-primary);
+  outline-offset: 2px;
+}
+
+/* 各デザインの雰囲気がわかる小さな見本 */
+.design-preview {
+  display: block;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.design-option-standard .design-preview {
+  background:
+    linear-gradient(#5b5fed, #5b5fed) 10px 10px / 24px 24px no-repeat,
+    linear-gradient(#ffffff, #ffffff) 42px 12px / 50% 8px no-repeat,
+    linear-gradient(#ffffff, #ffffff) 42px 26px / 30% 6px no-repeat,
+    #e8e8f5;
+  border-radius: 8px;
+}
+
+.design-option-modern .design-preview {
+  background:
+    linear-gradient(135deg, #4f46e5, #a855f7) 10px 10px / 24px 24px no-repeat,
+    linear-gradient(#ffffff, #ffffff) 42px 12px / 50% 8px no-repeat,
+    linear-gradient(#ffffff, #ffffff) 42px 26px / 30% 6px no-repeat,
+    radial-gradient(circle at 0% 0%, #c7d2fe, transparent 60%),
+    radial-gradient(circle at 100% 100%, #f5d0fe, transparent 60%),
+    #eef2ff;
+  border-radius: 14px;
+}
+
+.design-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.design-option-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vt-c-text-primary);
+}
+
+.design-option-description {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--vt-c-text-secondary);
+}
+
+.design-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1.125rem;
+  color: var(--vt-c-primary);
+  background: white;
+  border-radius: 50%;
+}
+
 .logout-warning-text {
   font-size: 1.0625rem;
   line-height: 1.6;
@@ -349,7 +504,8 @@ const logout = async () => {
     max-width: 800px;
   }
 
-  .install-card {
+  .install-card,
+  .design-switch {
     max-width: 800px;
   }
 }
@@ -383,7 +539,8 @@ const logout = async () => {
     max-width: 100%;
   }
 
-  .install-card {
+  .install-card,
+  .design-switch {
     max-width: 100%;
   }
 }

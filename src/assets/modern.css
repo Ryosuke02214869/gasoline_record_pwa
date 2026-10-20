@@ -1,0 +1,459 @@
+/*
+ * モダンデザイン
+ * メニュー画面の「画面のデザイン」で「モダン」を選んだ時に <html data-design="modern"> で有効になる。
+ * 各画面のスタイルは変更せず、ここで上書きする（ダークモードはなし）。
+ */
+
+/* ---------- 色・形のトークン ---------- */
+html[data-design='modern'] {
+  --vt-c-primary: #4f46e5;
+  --vt-c-primary-light: #818cf8;
+  --vt-c-primary-dark: #4338ca;
+
+  --vt-c-secondary: #0f766e;
+  --vt-c-secondary-light: #14b8a6;
+  --vt-c-secondary-dark: #115e59;
+
+  --vt-c-bg-lavender: #f5f7ff;
+  --vt-c-bg-blue-light: rgba(79, 70, 229, 0.1);
+  --vt-c-bg-green-light: rgba(15, 118, 110, 0.1);
+
+  --vt-c-text-primary: #0f172a;
+  --vt-c-text-secondary: #475569;
+  --vt-c-text-tertiary: #64748b;
+
+  --vt-c-divider-light-1: rgba(15, 23, 42, 0.12);
+  --vt-c-divider-light-2: rgba(15, 23, 42, 0.07);
+
+  --m-gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%);
+  --m-gradient-accent: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  --m-surface: rgba(255, 255, 255, 0.82);
+  --m-surface-strong: rgba(255, 255, 255, 0.94);
+  --m-border: rgba(255, 255, 255, 0.95);
+  --m-outline: rgba(99, 102, 241, 0.16);
+  --m-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -12px rgba(49, 46, 129, 0.22);
+  --m-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 22px 44px -14px rgba(49, 46, 129, 0.32);
+  --m-shadow-primary: 0 10px 24px -10px rgba(79, 70, 229, 0.6);
+  --m-shadow-accent: 0 10px 24px -10px rgba(15, 118, 110, 0.6);
+  --m-radius: 24px;
+
+  /* PrimeVue のプライマリカラー（フォーカス枠・選択状態など） */
+  --p-primary-50: #eef2ff;
+  --p-primary-100: #e0e7ff;
+  --p-primary-200: #c7d2fe;
+  --p-primary-300: #a5b4fc;
+  --p-primary-400: #818cf8;
+  --p-primary-500: #6366f1;
+  --p-primary-600: #4f46e5;
+  --p-primary-700: #4338ca;
+  --p-primary-800: #3730a3;
+  --p-primary-900: #312e81;
+  --p-primary-950: #1e1b4b;
+  --p-primary-color: #4f46e5;
+  --p-primary-contrast-color: #ffffff;
+  --p-primary-hover-color: #4338ca;
+  --p-primary-active-color: #3730a3;
+
+  /* PrimeVue の表・ページ送り（背景を透過させてカードになじませる） */
+  --p-datatable-header-cell-background: transparent;
+  --p-datatable-row-background: transparent;
+  --p-datatable-row-striped-background: rgba(238, 242, 255, 0.55);
+  --p-datatable-row-hover-background: rgba(224, 231, 255, 0.7);
+  --p-paginator-background: transparent;
+}
+
+/* ---------- 全体 ---------- */
+html[data-design='modern'] body {
+  color: var(--vt-c-text-secondary);
+  font-family:
+    Inter,
+    'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP',
+    'Yu Gothic UI',
+    Meiryo,
+    system-ui,
+    sans-serif;
+  background: #f8fafc;
+}
+
+/* 背景のグラデーションは画面に固定する（iOS は background-attachment: fixed 非対応のため疑似要素で表示） */
+html[data-design='modern'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at -10% -12%, #e0e7ff 0%, transparent 60%),
+    radial-gradient(900px 520px at 112% -4%, #fae8ff 0%, transparent 58%),
+    radial-gradient(900px 640px at 50% 118%, #ccfbf1 0%, transparent 62%),
+    #f8fafc;
+}
+
+html[data-design='modern'] :is(.home-container, .vehicle-list-container, .fuel-record-list-container) {
+  background: transparent;
+}
+
+html[data-design='modern'] :is(h1, h2, h3) {
+  letter-spacing: -0.01em;
+}
+
+/* ---------- カード ---------- */
+html[data-design='modern'] .p-card,
+html[data-design='modern'] :is(.design-switch, .simple-table) {
+  background: var(--m-surface);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius);
+  box-shadow: var(--m-shadow);
+}
+
+html[data-design='modern'] :is(.menu-card, .vehicle-card, .mobile-record-card) {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+html[data-design='modern'] :is(.menu-card, .vehicle-card, .mobile-record-card):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--m-shadow-hover);
+}
+
+/* ---------- ボタン ---------- */
+html[data-design='modern'] .p-button {
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+/* 通常の（色指定のない）ボタンはグラデーションにする */
+html[data-design='modern']
+  .p-button:where(
+    :not(
+        .p-button-secondary,
+        .p-button-danger,
+        .p-button-info,
+        .p-button-success,
+        .p-button-warn,
+        .p-button-help,
+        .p-button-contrast,
+        .p-button-text,
+        .p-button-outlined,
+        .p-button-link
+      )
+  ),
+html[data-design='modern'] :is(.login-button, .register-button, .install-button):is(:hover, :focus-visible) {
+  background: var(--m-gradient-primary);
+  border: none;
+  color: #ffffff;
+  box-shadow: var(--m-shadow-primary);
+}
+
+html[data-design='modern']
+  .p-button:where(
+    :not(
+        .p-button-secondary,
+        .p-button-danger,
+        .p-button-info,
+        .p-button-success,
+        .p-button-warn,
+        .p-button-help,
+        .p-button-contrast,
+        .p-button-text,
+        .p-button-outlined,
+        .p-button-link
+      )
+  ):enabled:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 14px 28px -10px rgba(79, 70, 229, 0.7);
+}
+
+html[data-design='modern'] .p-button.p-button-outlined {
+  background: rgba(255, 255, 255, 0.7);
+  border-width: 1.5px;
+}
+
+/* 一覧画面の「新しい○○を登録」ボタン */
+html[data-design='modern'] .page-header > .p-button {
+  background: var(--m-gradient-accent);
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  box-shadow: var(--m-shadow-accent);
+}
+
+html[data-design='modern'] .page-header > .p-button:enabled:hover {
+  background: var(--m-gradient-accent);
+  filter: brightness(1.08);
+  box-shadow: 0 14px 28px -10px rgba(15, 118, 110, 0.7);
+}
+
+/* 一覧画面の「ホーム」ボタン */
+html[data-design='modern'] .header-left .p-button,
+html[data-design='modern'] .header-left .p-button:enabled:hover {
+  background: var(--m-surface-strong);
+  border: 1px solid var(--m-outline);
+  border-radius: 999px;
+  color: var(--vt-c-primary);
+  box-shadow: 0 4px 14px -6px rgba(49, 46, 129, 0.3);
+}
+
+html[data-design='modern'] .header-left .p-button:enabled:hover {
+  background: #eef2ff;
+}
+
+/* ---------- 入力欄 ---------- */
+html[data-design='modern'] :is(.p-inputtext, .p-select, .p-password-input) {
+  border-radius: 14px;
+  border-color: #dbe1ee;
+  background: var(--m-surface-strong);
+}
+
+html[data-design='modern'] .p-inputtext:enabled:focus,
+html[data-design='modern'] .p-select.p-focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.16);
+}
+
+html[data-design='modern'] .form-group label {
+  color: var(--vt-c-text-primary);
+}
+
+/* ---------- ダイアログ・通知 ---------- */
+html[data-design='modern'] .p-dialog {
+  border: none;
+  border-radius: var(--m-radius);
+  box-shadow: 0 30px 70px -20px rgba(30, 27, 75, 0.45);
+}
+
+html[data-design='modern'] .p-toast-message {
+  border-radius: 18px;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* ---------- ログイン・新規登録 ---------- */
+html[data-design='modern'] :is(.login-container, .register-container) {
+  background:
+    radial-gradient(700px 480px at 0% 0%, rgba(168, 85, 247, 0.55) 0%, transparent 60%),
+    radial-gradient(700px 520px at 100% 100%, rgba(20, 184, 166, 0.45) 0%, transparent 60%),
+    linear-gradient(135deg, #1e1b4b 0%, #3730a3 45%, #6d28d9 100%);
+}
+
+html[data-design='modern'] :is(.login-card, .register-card) {
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 28px;
+  box-shadow: 0 40px 80px -24px rgba(15, 10, 60, 0.6);
+}
+
+html[data-design='modern'] :is(.login-header, .register-header) h1 {
+  background: var(--m-gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+
+html[data-design='modern'] :is(.login-header, .register-header) h2 {
+  color: var(--vt-c-text-primary);
+  font-weight: 800;
+}
+
+/* ---------- メニュー（ホーム） ---------- */
+html[data-design='modern'] .app-header {
+  padding-top: calc(1.5rem + env(safe-area-inset-top));
+}
+
+html[data-design='modern'] .brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--m-gradient-primary);
+  box-shadow: var(--m-shadow-primary);
+}
+
+html[data-design='modern'] .app-header h1 {
+  font-weight: 800;
+  background: linear-gradient(135deg, #312e81 0%, #6d28d9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-design='modern'] .page-title h2 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--vt-c-primary);
+}
+
+html[data-design='modern'] .icon-badge {
+  width: 96px;
+  height: 96px;
+  border-radius: 30px;
+  font-size: 2.5rem;
+  color: #ffffff;
+}
+
+html[data-design='modern'] :is(.icon-badge, .card-header) .pi {
+  font-size: 2.5rem;
+}
+
+html[data-design='modern'] .icon-badge.primary {
+  background: var(--m-gradient-primary);
+  box-shadow: var(--m-shadow-primary);
+}
+
+html[data-design='modern'] .icon-badge.secondary {
+  background: var(--m-gradient-accent);
+  box-shadow: var(--m-shadow-accent);
+}
+
+html[data-design='modern'] .menu-content h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+html[data-design='modern'] .menu-content p {
+  font-size: 0.9375rem;
+}
+
+html[data-design='modern'] .design-option {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+html[data-design='modern'] .design-option.active {
+  border-color: transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--m-gradient-primary) border-box;
+  box-shadow: 0 8px 20px -10px rgba(79, 70, 229, 0.55);
+}
+
+html[data-design='modern'] .install-card {
+  border: 1.5px dashed rgba(99, 102, 241, 0.45);
+}
+
+/* ---------- 一覧画面 ---------- */
+html[data-design='modern'] .page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--vt-c-text-primary);
+}
+
+html[data-design='modern'] .sync-status {
+  border-radius: 999px;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px -6px rgba(49, 46, 129, 0.25);
+}
+
+html[data-design='modern'] .sync-status.tone-ok {
+  background: rgba(240, 253, 244, 0.9);
+}
+
+html[data-design='modern'] .display-mode-tabs {
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: 18px;
+  box-shadow: var(--m-shadow);
+}
+
+html[data-design='modern'] .tab-button {
+  border-radius: 14px;
+}
+
+html[data-design='modern'] .tab-button.active {
+  background: var(--m-gradient-primary);
+  box-shadow: var(--m-shadow-primary);
+}
+
+html[data-design='modern'] .fuel-table .p-datatable-thead > tr > th {
+  color: var(--vt-c-text-tertiary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--vt-c-divider-light-1);
+}
+
+html[data-design='modern'] .fuel-table .p-datatable-tbody > tr > td {
+  border-color: var(--vt-c-divider-light-2);
+}
+
+html[data-design='modern'] .fuel-efficiency {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--vt-c-primary-dark);
+  font-weight: 700;
+}
+
+html[data-design='modern'] .table-header {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(168, 85, 247, 0.1));
+  color: var(--vt-c-primary-dark);
+}
+
+html[data-design='modern'] .record-value.highlight,
+html[data-design='modern'] .detail-value.highlight {
+  color: var(--vt-c-primary);
+  font-weight: 700;
+}
+
+/* 車両カード */
+html[data-design='modern'] .card-header {
+  background: var(--m-gradient-primary);
+  color: #ffffff;
+  border-radius: var(--m-radius) var(--m-radius) 0 0;
+}
+
+html[data-design='modern'] .license-plate {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: var(--vt-c-primary-dark);
+}
+
+/* ---------- 登録・編集フォーム ---------- */
+html[data-design='modern'] .form-header h1 {
+  font-weight: 800;
+  color: var(--vt-c-text-primary);
+}
+
+html[data-design='modern'] .calculation-display {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(168, 85, 247, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 18px;
+}
+
+html[data-design='modern'] .calculation-item .value {
+  color: var(--vt-c-primary-dark);
+  font-weight: 800;
+}
+
+/* ---------- スマホ ---------- */
+@media (max-width: 767px) {
+  /* 「ホーム」「タイトル」「同期状態」を 1 行に収める */
+  html[data-design='modern'] .page-header h1 {
+    font-size: 1.125rem;
+  }
+
+  html[data-design='modern'] .header-left {
+    gap: 0.75rem;
+  }
+
+  html[data-design='modern'] .header-left .p-button {
+    padding: 0.625rem 1rem;
+  }
+
+  html[data-design='modern'] .card-header {
+    padding: 1.5rem;
+  }
+}

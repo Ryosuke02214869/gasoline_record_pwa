@@ -29,9 +29,14 @@ const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
   // iPadOS は Mac として振る舞うためタッチ対応で判定する
   (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1)
 
+// スマホ・タブレットかどうか（PC ではホーム画面への追加案内を表示しない）
+const isMobileDevice = isIos || /Android|Mobile/i.test(navigator.userAgent)
+
 export function useInstallPrompt() {
-  // Android / PC: インストールボタンで直接インストールできる
-  const canInstall = computed(() => !isStandalone.value && deferredPrompt.value !== null)
+  // Android: インストールボタンで直接インストールできる
+  const canInstall = computed(
+    () => isMobileDevice && !isStandalone.value && deferredPrompt.value !== null,
+  )
   // iOS: 共有メニューから「ホーム画面に追加」する手順を案内する
   const showIosGuide = computed(() => !isStandalone.value && isIos)
 

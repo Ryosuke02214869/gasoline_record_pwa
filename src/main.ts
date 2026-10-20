@@ -14,6 +14,10 @@ import router from './router'
 import { useAuthStore } from './stores/auth'
 import { useSyncStore } from './stores/sync'
 import { requestPersistentStorage } from './lib/localDb'
+import { initDesign } from './composables/useDesign'
+
+// 保存済みのデザインを画面表示前に反映する（切り替わりのちらつきを防ぐ）
+initDesign()
 
 // アプリの初期化を非同期関数で実行
 async function initializeApp() {
