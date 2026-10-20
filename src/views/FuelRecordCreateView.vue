@@ -288,7 +288,7 @@ const handleSubmit = async () => {
         ? {
             severity: 'info',
             summary: '端末に保存しました',
-            detail: 'インターネットに接続すると自動で送信されます',
+            detail: 'サーバーに接続できるようになると自動で送信されます',
             life: 4000,
           }
         : {

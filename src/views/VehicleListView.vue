@@ -21,7 +21,7 @@
     </div>
 
     <Message v-if="syncStore.isOffline" severity="warn" :closable="false" class="offline-message">
-      オフライン中は車両の登録・編集・削除はできません。インターネットに接続してから操作してください。
+      オフライン中、またはサーバーに接続できない間は、車両の登録・編集・削除はできません。接続できるようになってから操作してください。
     </Message>
 
     <div v-if="vehicleStore.loading" class="loading-container">

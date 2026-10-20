@@ -2,6 +2,8 @@
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import Button from 'primevue/button'
 import { useNetworkStatus } from '@/composables/useNetworkStatus'
+import { useAuthStore } from '@/stores/auth'
+import { useSyncStore } from '@/stores/sync'
 
 // Service Worker の登録と更新検知
 const { needRefresh, offlineReady, updateServiceWorker } = useRegisterSW({
@@ -23,12 +25,24 @@ const closeNeedRefresh = () => {
 
 // オンライン / オフライン状態
 const { isOnline } = useNetworkStatus()
+const authStore = useAuthStore()
+const syncStore = useSyncStore()
 </script>
 
 <template>
   <div v-if="!isOnline" class="offline-banner" role="status">
     <i class="pi pi-wifi"></i>
     <span>オフラインです。給油記録の登録と、各車両の直近2件の確認ができます。</span>
+  </div>
+  <div
+    v-else-if="authStore.user && syncStore.offlineReason === 'server'"
+    class="offline-banner"
+    role="status"
+  >
+    <i class="pi pi-server"></i>
+    <span>
+      サーバーに接続できません。給油記録の登録と、各車両の直近2件の確認ができます（自動で再接続します）。
+    </span>
   </div>
 
   <div v-if="needRefresh" class="pwa-toast" role="alert">

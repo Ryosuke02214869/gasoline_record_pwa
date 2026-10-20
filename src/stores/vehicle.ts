@@ -3,7 +3,11 @@ import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from './auth'
 import { getLocalDb, toPlain } from '@/lib/localDb'
-import { isNetworkError } from '@/composables/useNetworkStatus'
+import {
+  canReachServer,
+  isNetworkError,
+  isServerUnavailable,
+} from '@/composables/useNetworkStatus'
 
 export interface Vehicle {
   id: string
@@ -46,25 +50,27 @@ export const useVehicleStore = defineStore('vehicle', () => {
     error.value = null
 
     try {
-      // オフラインの場合はサーバーに問い合わせない
-      // （トークン更新の再試行が終わるまで待たされるため、すぐに端末のデータを使う）
-      if (!navigator.onLine || useAuthStore().offlineSession) {
+      // オフライン・サーバーに接続できない場合はサーバーに問い合わせない
+      // （応答や再試行を待たされるため、すぐに端末のデータを使う）
+      if (!canReachServer() || useAuthStore().offlineSession) {
         throw new TypeError('Failed to fetch')
       }
 
-      const { data, error: fetchError } = await supabase
-        .from('vehicles')
-        .select('*')
-        .order('created_at', { ascending: false })
+      const {
+        data,
+        error: fetchError,
+        status,
+      } = await supabase.from('vehicles').select('*').order('created_at', { ascending: false })
 
       if (fetchError) {
-        throw fetchError
+        // サーバーに接続できない場合は、オフラインと同じく端末のデータを使う
+        throw isServerUnavailable(fetchError, status) ? new TypeError('Failed to fetch') : fetchError
       }
 
       vehicles.value = data || []
       await saveCache()
     } catch (err: any) {
-      // オフラインの場合は端末に保存した車両一覧を使う
+      // オフライン・サーバーに接続できない場合は端末に保存した車両一覧を使う
       if (isNetworkError(err)) {
         vehicles.value = await loadCache()
         return

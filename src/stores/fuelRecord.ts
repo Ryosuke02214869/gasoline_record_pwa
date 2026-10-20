@@ -2,7 +2,11 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { getLocalDb, toPlain, type PendingFuelRecord } from '@/lib/localDb'
-import { isNetworkError } from '@/composables/useNetworkStatus'
+import {
+  canReachServer,
+  isNetworkError,
+  isServerUnavailable,
+} from '@/composables/useNetworkStatus'
 import { useAuthStore } from './auth'
 import { useVehicleStore } from './vehicle'
 import { useSyncStore } from './sync'
@@ -65,6 +69,9 @@ export interface FuelRecordStore {
 
 // オフライン閲覧用に端末へ保存する、車両ごとの直近の記録件数
 const RECENT_RECORDS_PER_VEHICLE = 2
+
+// 登録時に送信の完了を待つ最大時間
+const CREATE_SYNC_WAIT_MS = 3000
 
 const RECORD_SELECT = `
   *,
@@ -250,9 +257,9 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
       let serverRecords: FuelRecord[]
 
       try {
-        // オフラインの場合はサーバーに問い合わせない
-        // （トークン更新の再試行が終わるまで待たされるため、すぐに端末のデータを使う）
-        if (!navigator.onLine || useAuthStore().offlineSession) {
+        // オフライン・サーバーに接続できない場合はサーバーに問い合わせない
+        // （応答や再試行を待たされるため、すぐに端末のデータを使う）
+        if (!canReachServer() || useAuthStore().offlineSession) {
           throw new TypeError('Failed to fetch')
         }
 
@@ -266,10 +273,11 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
           query = query.eq('vehicle_id', vehicleId)
         }
 
-        const { data, error: fetchError } = await query
+        const { data, error: fetchError, status } = await query
 
         if (fetchError) {
-          throw fetchError
+          // サーバーに接続できない場合は、オフラインと同じく端末のデータを使う
+          throw isServerUnavailable(fetchError, status) ? new TypeError('Failed to fetch') : fetchError
         }
 
         serverRecords = data || []
@@ -336,10 +344,19 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
 
       const syncStore = useSyncStore()
       await syncStore.refreshPendingCount()
-      await syncStore.syncNow()
+      // サーバーに接続できる時だけ、ここで送信する（接続できない時は自動同期に任せ、登録画面で待たせない）
+      // 応答が遅い場合も一定時間で画面を戻す（送信は裏で続き、完了すると一覧の表示が更新される）
+      if (!syncStore.isOffline) {
+        await Promise.race([
+          syncStore.syncNow(),
+          new Promise((resolve) => setTimeout(resolve, CREATE_SYNC_WAIT_MS)),
+        ])
+      }
 
-      // 送信できたかどうか（pending）は一覧の状態を参照する
-      return records.value.find((r) => r.id === pending.id) ?? pendingToRecord(pending)
+      // 送信できたかどうか（pending）は、端末の未送信の記録に残っているかで判断する
+      const stillPending = (await userDb().pendingRecords.get(pending.id)) !== undefined
+      const record = records.value.find((r) => r.id === pending.id) ?? pendingToRecord(pending)
+      return { ...record, pending: stillPending }
     } catch (err: any) {
       console.error('Error creating fuel record:', err)
       error.value = err.message || '給油記録の登録に失敗しました'

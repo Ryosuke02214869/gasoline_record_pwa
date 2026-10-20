@@ -7,15 +7,27 @@ const syncStore = useSyncStore()
 const toast = useToast()
 
 const status = computed(() => {
-  if (syncStore.syncing) {
+  if (syncStore.syncing && !syncStore.isOffline) {
     return { tone: 'info', icon: 'pi pi-spin pi-sync', label: '同期中…', sub: '' }
   }
-  if (syncStore.isOffline) {
+  if (syncStore.offlineReason === 'network') {
     return {
       tone: 'offline',
       icon: 'pi pi-wifi',
       label: 'オフライン',
       sub: syncStore.pendingCount > 0 ? `未送信 ${syncStore.pendingCount}件` : '',
+    }
+  }
+  if (syncStore.offlineReason === 'server') {
+    return {
+      tone: 'offline',
+      icon: syncStore.syncing ? 'pi pi-spin pi-sync' : 'pi pi-server',
+      label: 'サーバー接続不可',
+      sub: syncStore.syncing
+        ? '再接続中…'
+        : syncStore.pendingCount > 0
+          ? `未送信 ${syncStore.pendingCount}件`
+          : 'タップで再接続',
     }
   }
   if (syncStore.failedCount > 0) {
@@ -58,7 +70,7 @@ function formatTime(iso: string) {
 const handleClick = async () => {
   if (syncStore.syncing) return
 
-  if (syncStore.isOffline) {
+  if (syncStore.offlineReason === 'network') {
     toast.add({
       severity: 'info',
       summary: 'オフラインです',
@@ -68,11 +80,19 @@ const handleClick = async () => {
     return
   }
 
+  // サーバーに接続できない場合も、タップで再接続を試みる
   const allSent = await syncStore.syncNow()
   toast.add(
     allSent
       ? { severity: 'success', summary: '同期しました', detail: '最新の記録を取得しました', life: 3000 }
-      : {
+      : syncStore.isOffline
+        ? {
+            severity: 'warn',
+            summary: 'サーバーに接続できません',
+            detail: '記録は端末に保存されています。接続できるようになると自動で送信されます',
+            life: 4000,
+          }
+        : {
           severity: 'warn',
           summary: '送信できなかった記録があります',
           detail: '一覧で「送信エラー」の記録を確認してください',

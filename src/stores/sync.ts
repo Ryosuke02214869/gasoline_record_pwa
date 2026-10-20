@@ -2,16 +2,19 @@ import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { getLocalDb } from '@/lib/localDb'
-import { useNetworkStatus, isNetworkError } from '@/composables/useNetworkStatus'
+import { useNetworkStatus, isServerUnavailable } from '@/composables/useNetworkStatus'
 import { useAuthStore } from './auth'
 import { useFuelRecordStore } from './fuelRecord'
 import { useVehicleStore } from './vehicle'
 
 const LAST_SYNCED_AT_KEY = 'lastSyncedAt'
 
+// サーバーに接続できない間、再接続を試みる間隔
+const RECONNECT_INTERVAL_MS = 60 * 1000
+
 export const useSyncStore = defineStore('sync', () => {
   const authStore = useAuthStore()
-  const { isOnline } = useNetworkStatus()
+  const { isOnline, serverUnavailable } = useNetworkStatus()
 
   // State
   const pendingCount = ref(0)
@@ -20,8 +23,16 @@ export const useSyncStore = defineStore('sync', () => {
   const lastSyncedAt = ref<string | null>(null)
 
   // Getters
-  // サーバーと通信できない状態（端末がオフライン、またはセッションをまだ確認できていない）
-  const isOffline = computed(() => !isOnline.value || authStore.offlineSession)
+  // サーバーと通信できない理由
+  // network: 端末がオフライン / server: サーバーに接続できない（停止中、またはセッションをまだ確認できていない）
+  const offlineReason = computed<'network' | 'server' | null>(() => {
+    if (!isOnline.value) return 'network'
+    if (serverUnavailable.value || authStore.offlineSession) return 'server'
+    return null
+  })
+
+  // サーバーと通信できない状態（どちらの理由でも、オフラインと同じように扱う）
+  const isOffline = computed(() => offlineReason.value !== null)
 
   // Actions
   async function refreshPendingCount() {
@@ -76,13 +87,25 @@ export const useSyncStore = defineStore('sync', () => {
         return false
       }
 
+      // サーバーに接続できるか確認する（停止中なら端末のデータを使い続け、未送信の記録も残しておく）
+      const { error: probeError, status: probeStatus } = await supabase
+        .from('vehicles')
+        .select('id')
+        .limit(1)
+      if (probeError) {
+        if (isServerUnavailable(probeError, probeStatus)) {
+          return false
+        }
+        throw probeError
+      }
+
       const db = getLocalDb(userId)
       const fuelRecordStore = useFuelRecordStore()
 
       // 登録した順に送信する
       const pending = await db.pendingRecords.orderBy('created_at').toArray()
       for (const record of pending) {
-        const { error } = await supabase.from('fuel_records').upsert(
+        const { error, status } = await supabase.from('fuel_records').upsert(
           {
             id: record.id,
             vehicle_id: record.vehicle_id,
@@ -97,7 +120,8 @@ export const useSyncStore = defineStore('sync', () => {
         )
 
         if (error) {
-          if (isNetworkError(error)) {
+          // 通信できない・サーバー停止の場合は未送信のまま残し、次の同期で再送信する
+          if (isServerUnavailable(error, status)) {
             return false
           }
           // サーバーに拒否された記録（別の端末で車両が削除された等）は残しておき、ユーザーに知らせる
@@ -165,6 +189,13 @@ export const useSyncStore = defineStore('sync', () => {
         void syncNow()
       }
     })
+
+    // サーバーに接続できない間は、定期的に再接続を試みる
+    setInterval(() => {
+      if (authStore.user && offlineReason.value === 'server') {
+        void syncNow()
+      }
+    }, RECONNECT_INTERVAL_MS)
   }
 
   return {
@@ -174,6 +205,7 @@ export const useSyncStore = defineStore('sync', () => {
     syncing,
     lastSyncedAt,
     // Getters
+    offlineReason,
     isOffline,
     // Actions
     refreshPendingCount,

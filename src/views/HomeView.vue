@@ -30,8 +30,8 @@ const handleLogout = async () => {
   if (syncStore.isOffline) {
     toast.add({
       severity: 'info',
-      summary: 'オフラインです',
-      detail: 'ログアウトはインターネットに接続してから行ってください',
+      summary: 'ログアウトできません',
+      detail: 'オフライン中、またはサーバーに接続できない間はログアウトできません',
       life: 3000,
     })
     return

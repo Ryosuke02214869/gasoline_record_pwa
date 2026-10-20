@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { deleteLocalDb } from '@/lib/localDb'
-import { isNetworkError } from '@/composables/useNetworkStatus'
+import { isNetworkError, setServerUnavailable } from '@/composables/useNetworkStatus'
 import type { User, Session } from '@supabase/supabase-js'
 
 // アプリで使うユーザー情報（オフライン時は端末に保存した情報から復元する）
@@ -82,6 +82,11 @@ export const useAuthStore = defineStore('auth', () => {
         : null
       const currentSession = result?.data.session ?? null
 
+      // オンラインなのに時間内に確認できなかった場合は、サーバーに接続できない状態とみなす
+      if (!result && navigator.onLine) {
+        setServerUnavailable(true)
+      }
+
       if (currentSession) {
         applySession(currentSession)
       } else if (!result || (result.error && isNetworkError(result.error))) {
@@ -111,11 +116,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // オンライン復帰時にセッションを確認・更新する。サーバーと通信できる状態なら true を返す
+  // オンライン復帰時にセッションを確認・更新する。セッションを確認できたら true を返す
+  // （サーバー停止中はトークン更新の再試行で長く待たされるため、時間を区切る）
   async function ensureOnlineSession() {
-    const {
-      data: { session: currentSession },
-    } = await supabase.auth.getSession()
+    const result = await withTimeout(supabase.auth.getSession(), SESSION_CHECK_TIMEOUT_MS)
+    const currentSession = result?.data.session ?? null
+
+    if (!result && navigator.onLine) {
+      setServerUnavailable(true)
+    }
 
     if (currentSession) {
       applySession(currentSession)
